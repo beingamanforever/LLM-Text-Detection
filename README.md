@@ -132,11 +132,17 @@ Many people, including me, are having 0.99+ cv score. I guess the reason is we a
 But the datasets we are using were prompted without
 > like a human.
 
-My take:
+# My take on why fallcy is occuring:
 
 - In a normal scenario, AI is almost unable to output typos, and this would be a very strong discriminator.
 - This competition's host took effort to hide easy wins from us - which is great. Hence, they did a special post-processing of the ai-generated essays, to introduce human-like noise (like typos).
 - Key factor to win this competition will be the ability to build a train dataset resembling the one used by competition hosts (Hence extremely high scores can only be attained only by the use of dataset which is similar to the one being used to test our scores in leaderboard (which isn't the right thing to do as we are tying to overfit our model on the hidden test data which is being used in LB, so i feel extremely high scoring models won't be working that well on other datasets).
+- test data has data is highly grammatically incorrect, due to which word embeddings are basically meaningless, as if the word doesn't have correct spelling then word embeddings would be highly skewed. And the motive of providing raw and clean data to our transformers would be lost.
+- Due to the fact that hidden test data has errors like the errors we see in the train.csv, is a reason why difference in scores is being produced in CV and LB scores.
+
+### How to solve the errors? 
+
+Well In my opinion of what I understand and learned from the contest, is that it's fine to have a model with LB scores of around 0.85 as if we would to try to achieve high scores it simply isn't possible by the usage of deeper models like BERT, simpler models by the usage of TF-IDF and voting classifer seem to score better (like in my case, the score of 0.932 was achieved using tdidf), also we can reverse engineer the original essays  upon which data preprocessing of some sort was applied and noises were introduced to make it seem more human like, we can do this by using certain libraries of python. But it would eventually kill the motive of having a good model in general for detection as we would be more focused on overfitting our model towards the hidden-test-data whose internals aren't even disclosed, it would he like hitting an arrow into the black-box.
 
 Also, I would like to thank [Darek](https://www.kaggle.com/thedrcat), for combining all the datasets available into a single dataset (train_drcat_02.csv) , which helped me tremendously in increasing my test scores. We can use this awsome notebook to find the number of typos in the dataset and its distribution [here](https://www.kaggle.com/code/narsil/find-typos-0-714-lb-in-14-lines-of-code/notebook). This was done to add human like noise so that it doesn't become a very strong discriminator, refer this [discussion](https://www.kaggle.com/competitions/llm-detect-ai-generated-text/discussion/452279) to understand more.
 
