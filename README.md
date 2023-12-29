@@ -12,6 +12,9 @@ AI-Generated Text detection using BERT( Bi-directional Encoder Representation Tr
 - Tips & Follow Through
 - Notable Points
 - CV vs LB scores fallacy
+- My take on why fallcy is occuring
+- How to solve the errors & Improve LB score | Results 
+- Result summary
 - References for further analysis
 - Author
 
@@ -132,7 +135,7 @@ Many people, including me, are having 0.99+ cv score. I guess the reason is we a
 But the datasets we are using were prompted without
 > like a human.
 
-# My take on why fallcy is occuring:
+## My take on why fallcy is occuring:
 
 - In a normal scenario, AI is almost unable to output typos, and this would be a very strong discriminator.
 - This competition's host took effort to hide easy wins from us - which is great. Hence, they did a special post-processing of the ai-generated essays, to introduce human-like noise (like typos).
@@ -140,11 +143,36 @@ But the datasets we are using were prompted without
 - test data has data is highly grammatically incorrect, due to which word embeddings are basically meaningless, as if the word doesn't have correct spelling then word embeddings would be highly skewed. And the motive of providing raw and clean data to our transformers would be lost.
 - Due to the fact that hidden test data has errors like the errors we see in the train.csv, is a reason why difference in scores is being produced in CV and LB scores.
 
-### How to solve the errors? 
+## How to improve LB score | Results 
 
-Well In my opinion of what I understand and learned from the contest, is that it's fine to have a model with LB scores of around 0.85 as if we would to try to achieve high scores it simply isn't possible by the usage of deeper models like BERT, simpler models by the usage of TF-IDF and voting classifer seem to score better (like in my case, the score of 0.932 was achieved using tdidf), also we can reverse engineer the original essays  upon which data preprocessing of some sort was applied and noises were introduced to make it seem more human like, we can do this by using certain libraries of python. But it would eventually kill the motive of having a good model in general for detection as we would be more focused on overfitting our model towards the hidden-test-data whose internals aren't even disclosed, it would he like hitting an arrow into the black-box.
+[Here](https://www.kaggle.com/code/paradoxplusparadise/ensemble-learning-technique-1) is my submission using voting classifier of LogisticRegression(lr) and SGDClassifier(sgd) 
 
-Also, I would like to thank [Darek](https://www.kaggle.com/thedrcat), for combining all the datasets available into a single dataset (train_drcat_02.csv) , which helped me tremendously in increasing my test scores. We can use this awsome notebook to find the number of typos in the dataset and its distribution [here](https://www.kaggle.com/code/narsil/find-typos-0-714-lb-in-14-lines-of-code/notebook). This was done to add human like noise so that it doesn't become a very strong discriminator, refer this [discussion](https://www.kaggle.com/competitions/llm-detect-ai-generated-text/discussion/452279) to understand more.
+![image](https://github.com/beingamanforever/LLM-Text-Detection/assets/121532863/11186353-bb9a-47f9-934b-d579e4d92cff)
+
+With basic pre-processing and tf-idf vectoriser, it easily scored a 0.932 LB score while consuming a runtime of mere 33seconds!
+
+![image](https://github.com/beingamanforever/LLM-Text-Detection/assets/121532863/a49f88f2-1da9-4490-9df9-c5110275c200)
+
+Well In my opinion of what I understand and learned from the contest, is that it's fine to have a model with LB scores of **around 0.85** as if we would to try to achieve high scores it simply isn't possible by the usage of deeper models like BERT, simpler models by the usage of TF-IDF and voting classifer seem to score better (like in my case, the score of **0.932** was achieved using tdidf), also we can reverse engineer the original essays  upon which data preprocessing of some sort was applied and noises were introduced to make it seem more human like, we can do this by using **certain libraries of python (like language_tool_python)**. 
+
+But it would eventually kill the motive of having a good model in general for detection as we would be more focused on overfitting our model towards the hidden-test-data whose internals aren't even disclosed, it would he like hitting an arrow into the black-box.
+
+Also, I would like to thank [Darek](https://www.kaggle.com/thedrcat), for combining all the datasets available into a single dataset (train_drcat_02.csv), which helped me tremendously in increasing my test scores. 
+
+Also we can use this awsome notebook to find the number of typos in the dataset and its distribution [here](https://www.kaggle.com/code/narsil/find-typos-0-714-lb-in-14-lines-of-code/notebook). This was done to add human like noise so that it doesn't become a very strong discriminator, refer this [discussion](https://www.kaggle.com/competitions/llm-detect-ai-generated-text/discussion/452279) to understand more.
+
+# Result summary
+
+1. A reliable CV-LB relationship has been very elusive in this competition. Inspite of best efforts, the test datasets created could not mimic the public or private hidden test data (those who have done, if any, can post their views)
+2. TFIDF features like max_df, min_df, max_features does not seem to make much difference owing to the nature of this usecase. Similarly, 'modified huber' is the only loss function that does well owing to outliers
+3. LLMs / Transformers are not good at detecting fake text when the test data is corrupted to the extent word embeddings layer becomes meaningless. Even otherwise, owing to their weights oriented towards other use cases, their efficiency does not seem to be good
+4. TFIDF Vectorizer based models are best at the moment for fake detection. This could be because phrases and sentences need to be compared to distinguish the style of LLM vs human.
+5. Typos are major features that distinguish between human and LLM essays. However, since errors have got introduced into training and test datasets, this is no more an useful feature
+6. NLP based cleaning could be important as few features due to character difference can make huge difference in detecting fake texts
+7. TFIDF Vectorizers perform very differently with different tokenizers and tokenizing patterns. Scores vary significantly with different patterns - arriving at right pattern could be crucial
+8. Introducing typos into the training dataset is another way to model the problem and increase the score
+9. Ensembling increases the score (only if model accuracy of each model is greater than 50%).
+10. Feature based models are not found to be efficient for this use case even though some recent papers claim to have used XGBoost with features like frequent words, distinguishing words etc to differentiate the essays
 
 ## Refrences for further analysis
 
